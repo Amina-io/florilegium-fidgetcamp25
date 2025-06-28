@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to the Florilegium</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Times New Roman', serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useRef, useEffect, useState } = React;
+        
+        const metadata = {
+          themes: "Florilegium, Mental Flowers, Wisdom, Beauty, Growth, Collection",
+          visualization: "Floating flower petals carrying quotes and passages of wisdom",
+          promptSuggestion: "1. Add more petal varieties\n2. Include quote display system\n3. Create NFC tag integration\n4. Develop petal interactions\n5. Add seasonal color changes"
+        }
+
+        const sampleQuotes = [
+          { text: "Creativity is just about making interesting connections between things", author: "Steve Jobs", nfcId: "nfc_001", authorUrl: "https://pin.it/1fs9gVt3f" },
+          { text: "To be cringe is to be free", author: "Some internet post", nfcId: "nfc_002", authorUrl: "" },
+          { text: "As you enter positions of trust and power, dream a little before you think.", author: "Toni Morrison", nfcId: "nfc_003", authorUrl: "" },
+          { text: "Remember to imagine and craft the worlds you cannot live without, just as you dismantle the ones you cannot live within.", author: "Ruha Benjamin", nfcId: "nfc_004", authorUrl: "" },
+          { text: "Even our failure matters. A failed star shines brighter than a coherent one, because a failed star has burst its guts into the universe, and becomes stardust, and come into our skin, and made us human.", author: "Dr. Bayo Akomolafe", nfcId: "nfc_005", authorUrl: "https://atmos.earth/dr-bayo-akomolafe-on-slowing-down-in-urgent-times/" },
+          { text: "I could lie there as long as I wanted, and let all the pictures of things a man might want run through my head, coffee, a girl, money, a drink, white sand and blue water, and let them all slide off, one after the other, like a deck of cards slewing slowly off your hand. Maybe the things you want are like cards. You don't want them for themselves, really, though you think you do.", author: "Robert Penn Warren, All the King's Men", nfcId: "nfc_006", authorUrl: "" },
+          { text: "The only rule is work. If you work, it will lead to something. It is the people who do all of the work all of the time who eventually catch on to things. You can fool the fans- but not the players.", author: "Sister Corita Kent & John Cage", nfcId: "nfc_007", authorUrl: "" },
+          { text: "The world is its own magic.", author: "Shunryu Suzuki", nfcId: "nfc_008", authorUrl: "https://marclesser.net/the-world-is-its-own-magic/" },
+          { text: "The Clown is the \"puer aeternae\", the eternal child in all of us - the innocent who sees things as they really are and not as convention decrees, who can be counted on to tell us, in the loudest possible voice, that the emperor's not wearing any clothes.", author: "Jan Henderson, Fool Moon Productions", nfcId: "nfc_009", authorUrl: "https://www.wheatinstitute.com/post/philosophy-of-clown" },
+          { text: "You never change things by fighting the existing reality. To change something, build a new model that makes the existing model obsolete.", author: "Buckminster Fuller", nfcId: "nfc_010", authorUrl: "" },
+          { text: "There is nothing in a caterpillar that tells you it's going to be a butterfly.", author: "Buckminster Fuller", nfcId: "nfc_011", authorUrl: "" },
+          { text: "Braiding Sweetgrass", author: "Robin Wall Kimmerer", nfcId: "nfc_012", authorUrl: "" },
+          { text: "The Sea Forager's Guide to the Northern California Coast", author: "Kirk Lombard", nfcId: "nfc_013", authorUrl: "" },
+          { text: "Nothing in this world can take the place of persistence. Talent will not; nothing is more common than unsuccessful men with talent. Genius will not; unrewarded genius is almost a proverb. Education will not; the world is full of educated derelicts. Persistence and determination alone are omnipotent.", author: "Calvin Coolidge", nfcId: "nfc_014", authorUrl: "" },
+          { text: "i think everyone should (responsibly) forage locally. it's an accessible, tangible way to connect yourself to the environment around you. you become a participant in your local ecosystem, a gardener of the wild.", author: "Anonymous", nfcId: "nfc_015", authorUrl: "" },
+          { text: "The wound is the place where light enters you", author: "Rumi", nfcId: "nfc_016", authorUrl: "https://www.goodreads.com/quotes/103315-the-wound-is-the-place-where-the-light-enters-you" }
+        ]
+
+        const DigitalFlorilegium = ({ initialZoom = 8 }) => {
+          const containerRef = useRef(null)
+          const [selectedQuote, setSelectedQuote] = useState(null)
+          const [showQuote, setShowQuote] = useState(false)
+          const [showInstructions, setShowInstructions] = useState(true)
+          const [hasViewedQuote, setHasViewedQuote] = useState(false)
+          const [nfcSupported, setNfcSupported] = useState(false)
+          const [nfcStatus, setNfcStatus] = useState('Checking NFC...')
+
+          useEffect(() => {
+            if (!containerRef.current) return
+
+            let animationFrameId = null
+            let scene = null
+            let camera = null
+            let renderer = null
+            let petals = []
+            let petalMeshes = []
+            let raycaster
+            let mouse
+
+            const createPetalGeometry = (type = 0) => {
+              const shape = new THREE.Shape()
+              
+              if (type === 0) {
+                // Real rose petal - curved and asymmetric
+                shape.moveTo(0, 0)
+                shape.bezierCurveTo(0.4, 0.1, 0.8, 0.3, 1.0, 0.7)
+                shape.bezierCurveTo(1.1, 1.1, 0.9, 1.4, 0.6, 1.6)
+                shape.bezierCurveTo(0.3, 1.7, 0.1, 1.65, 0, 1.5)
+                shape.bezierCurveTo(-0.1, 1.3, -0.2, 1.0, -0.15, 0.7)
+                shape.bezierCurveTo(-0.1, 0.4, 0.1, 0.1, 0, 0)
+              } else if (type === 1) {
+                // Pansy petal - heart-shaped with notch
+                shape.moveTo(0, 0)
+                shape.bezierCurveTo(0.6, 0.2, 0.9, 0.6, 0.8, 1.0)
+                shape.bezierCurveTo(0.7, 1.3, 0.4, 1.4, 0.1, 1.3)
+                shape.bezierCurveTo(0.05, 1.35, 0, 1.4, -0.05, 1.35)
+                shape.bezierCurveTo(-0.1, 1.4, -0.15, 1.35, -0.2, 1.3)
+                shape.bezierCurveTo(-0.5, 1.4, -0.8, 1.3, -0.9, 1.0)
+                shape.bezierCurveTo(-1.0, 0.6, -0.7, 0.2, 0, 0)
+              } else if (type === 2) {
+                // Daisy petal - long and narrow
+                shape.moveTo(0, 0)
+                shape.bezierCurveTo(0.15, 0.1, 0.25, 0.4, 0.3, 0.8)
+                shape.bezierCurveTo(0.32, 1.3, 0.25, 1.6, 0.1, 1.8)
+                shape.bezierCurveTo(0.05, 1.85, 0, 1.9, -0.05, 1.85)
+                shape.bezierCurveTo(-0.1, 1.8, -0.25, 1.6, -0.32, 1.3)
+                shape.bezierCurveTo(-0.3, 0.8, -0.25, 0.4, -0.15, 0.1)
+                shape.bezierCurveTo(-0.1, 0.05, 0, 0, 0, 0)
+              } else if (type === 3) {
+                // Violet petal - rounded and soft
+                shape.moveTo(0, 0)
+                shape.bezierCurveTo(0.5, 0.15, 0.8, 0.5, 0.75, 0.9)
+                shape.bezierCurveTo(0.7, 1.2, 0.5, 1.35, 0.2, 1.4)
+                shape.bezierCurveTo(0.1, 1.42, 0, 1.45, -0.1, 1.42)
+                shape.bezierCurveTo(-0.2, 1.4, -0.5, 1.35, -0.7, 1.2)
+                shape.bezierCurveTo(-0.75, 0.9, -0.8, 0.5, -0.5, 0.15)
+                shape.bezierCurveTo(-0.2, 0.05, 0, 0, 0, 0)
+              } else if (type === 4) {
+                // Carnation petal - ruffled edge
+                shape.moveTo(0, 0)
+                shape.bezierCurveTo(0.3, 0.1, 0.6, 0.3, 0.7, 0.6)
+                shape.lineTo(0.75, 0.8)
+                shape.bezierCurveTo(0.8, 0.9, 0.75, 1.0, 0.7, 1.1)
+                shape.lineTo(0.65, 1.2)
+                shape.bezierCurveTo(0.6, 1.3, 0.5, 1.35, 0.3, 1.4)
+                shape.bezierCurveTo(0.1, 1.42, 0, 1.4, -0.1, 1.42)
+                shape.bezierCurveTo(-0.3, 1.4, -0.5, 1.35, -0.6, 1.3)
+                shape.lineTo(-0.65, 1.2)
+                shape.bezierCurveTo(-0.7, 1.1, -0.75, 1.0, -0.8, 0.9)
+                shape.lineTo(-0.75, 0.8)
+                shape.bezierCurveTo(-0.7, 0.6, -0.6, 0.3, -0.3, 0.1)
+                shape.bezierCurveTo(-0.1, 0.05, 0, 0, 0, 0)
+              } else if (type === 5) {
+                // Lily petal - pointed with curves
+                shape.moveTo(0, 0)
+                shape.bezierCurveTo(0.2, 0.1, 0.35, 0.3, 0.4, 0.6)
+                shape.bezierCurveTo(0.42, 1.0, 0.35, 1.4, 0.2, 1.7)
+                shape.bezierCurveTo(0.1, 1.8, 0.05, 1.85, 0, 1.9)
+                shape.bezierCurveTo(-0.05, 1.85, -0.1, 1.8, -0.2, 1.7)
+                shape.bezierCurveTo(-0.35, 1.4, -0.42, 1.0, -0.4, 0.6)
+                shape.bezierCurveTo(-0.35, 0.3, -0.2, 0.1, 0, 0)
+              } else if (type === 6) {
+                // Tulip petal - cup shaped
+                shape.moveTo(0, 0)
+                shape.bezierCurveTo(0.4, 0.05, 0.7, 0.2, 0.8, 0.5)
+                shape.bezierCurveTo(0.85, 0.9, 0.8, 1.2, 0.6, 1.4)
+                shape.bezierCurveTo(0.3, 1.5, 0.1, 1.48, 0, 1.45)
+                shape.bezierCurveTo(-0.1, 1.48, -0.3, 1.5, -0.6, 1.4)
+                shape.bezierCurveTo(-0.8, 1.2, -0.85, 0.9, -0.8, 0.5)
+                shape.bezierCurveTo(-0.7, 0.2, -0.4, 0.05, 0, 0)
+              } else if (type === 7) {
+                // Fern frond - delicate and segmented
+                shape.moveTo(0, 0)
+                shape.bezierCurveTo(0.1, 0.1, 0.15, 0.3, 0.2, 0.5)
+                shape.lineTo(0.25, 0.7)
+                shape.bezierCurveTo(0.3, 0.9, 0.25, 1.1, 0.2, 1.3)
+                shape.lineTo(0.15, 1.5)
+                shape.bezierCurveTo(0.1, 1.7, 0.05, 1.8, 0, 1.85)
+                shape.bezierCurveTo(-0.05, 1.8, -0.1, 1.7, -0.15, 1.5)
+                shape.lineTo(-0.2, 1.3)
+                shape.bezierCurveTo(-0.25, 1.1, -0.3, 0.9, -0.25, 0.7)
+                shape.lineTo(-0.2, 0.5)
+                shape.bezierCurveTo(-0.15, 0.3, -0.1, 0.1, 0, 0)
+              } else if (type === 8) {
+                // Cherry blossom - 5 heart petals
+                shape.moveTo(0, 0)
+                shape.bezierCurveTo(0.5, 0.1, 0.8, 0.4, 0.7, 0.8)
+                shape.bezierCurveTo(0.6, 1.1, 0.3, 1.2, 0.1, 1.15)
+                shape.bezierCurveTo(0.05, 1.2, 0, 1.25, -0.05, 1.2)
+                shape.bezierCurveTo(-0.1, 1.15, -0.3, 1.2, -0.6, 1.1)
+                shape.bezierCurveTo(-0.7, 0.8, -0.8, 0.4, -0.5, 0.1)
+                shape.bezierCurveTo(-0.2, 0.05, 0, 0, 0, 0)
+              } else if (type === 9) {
+                // Hibiscus petal - large and ruffled
+                shape.moveTo(0, 0)
+                shape.bezierCurveTo(0.6, 0.2, 1.0, 0.5, 1.1, 0.9)
+                shape.bezierCurveTo(1.15, 1.2, 1.0, 1.4, 0.8, 1.5)
+                shape.bezierCurveTo(0.6, 1.55, 0.4, 1.5, 0.2, 1.45)
+                shape.bezierCurveTo(0.1, 1.48, 0, 1.5, -0.1, 1.48)
+                shape.bezierCurveTo(-0.2, 1.45, -0.4, 1.5, -0.6, 1.55)
+                shape.bezierCurveTo(-0.8, 1.5, -1.0, 1.4, -1.15, 1.2)
+                shape.bezierCurveTo(-1.1, 0.9, -1.0, 0.5, -0.6, 0.2)
+                shape.bezierCurveTo(-0.3, 0.1, 0, 0, 0, 0)
+              } else if (type === 10) {
+                // Iris petal - elegant and curved
+                shape.moveTo(0, 0)
+                shape.bezierCurveTo(0.3, 0.2, 0.5, 0.6, 0.4, 1.0)
+                shape.bezierCurveTo(0.3, 1.4, 0.1, 1.6, 0, 1.7)
+                shape.bezierCurveTo(-0.2, 1.65, -0.4, 1.5, -0.5, 1.2)
+                shape.bezierCurveTo(-0.6, 0.8, -0.4, 0.4, -0.2, 0.2)
+                shape.bezierCurveTo(-0.1, 0.1, 0, 0, 0, 0)
+              } else {
+                // Lavender sprig - small and delicate
+                shape.moveTo(0, 0)
+                shape.bezierCurveTo(0.1, 0.05, 0.15, 0.2, 0.18, 0.4)
+                shape.bezierCurveTo(0.2, 0.7, 0.18, 1.0, 0.15, 1.3)
+                shape.bezierCurveTo(0.1, 1.5, 0.05, 1.6, 0, 1.65)
+                shape.bezierCurveTo(-0.05, 1.6, -0.1, 1.5, -0.15, 1.3)
+                shape.bezierCurveTo(-0.18, 1.0, -0.2, 0.7, -0.18, 0.4)
+                shape.bezierCurveTo(-0.15, 0.2, -0.1, 0.05, 0, 0)
+              }
+
+              const geometry = new THREE.ShapeGeometry(shape)
+              
+              // Add realistic flower imperfections
+              const positions = geometry.attributes.position
+              for (let i = 0; i < positions.count; i++) {
+                const x = positions.getX(i)
+                const y = positions.getY(i)
+                // Natural variations like real pressed flowers
+                positions.setX(i, x + (Math.random() - 0.5) * 0.06)
+                positions.setY(i, y + (Math.random() - 0.5) * 0.04)
+                // Subtle aging and press marks
+                const texture = Math.sin(x * 12) * Math.cos(y * 8) * 0.008
+                positions.setZ(i, texture)
+              }
+              positions.needsUpdate = true
+              
+              return geometry
+            }
+
+            const createPetalColors = () => {
+              const colors = [
+                new THREE.Color(0xFFFFFF), // White - FFFFFF
+                new THREE.Color(0xFFA647), // Sandy brown - FFA647
+                new THREE.Color(0xB7C3A0), // Sage - B7C3A0
+                new THREE.Color(0x6E1CD9), // Electric indigo - 6E1CD9
+                new THREE.Color(0xBD6175), // Blush - BD6175
+                new THREE.Color(0xFFFFFF), // White again for more frequency
+                new THREE.Color(0xFFA647), // Sandy brown again for more frequency
+                new THREE.Color(0xB7C3A0), // Sage again for more frequency
+                new THREE.Color(0x6E1CD9), // Electric indigo again for more frequency
+                new THREE.Color(0xBD6175), // Blush again for more frequency
+                // Add a few subtle variations to avoid perfect uniformity
+                new THREE.Color(0xF5F5F5), // Very light gray (close to white)
+                new THREE.Color(0xF2A857), // Slightly warmer sandy brown
+                new THREE.Color(0xC2C8AA), // Slightly lighter sage
+                new THREE.Color(0x7825E0), // Slightly brighter indigo
+                new THREE.Color(0xC4687A)  // Slightly lighter blush
+              ]
+              return colors[Math.floor(Math.random() * colors.length)]
+            }
+
+            const initializePetals = () => {
+              petals = []
+              petalMeshes = []
+
+              for (let i = 0; i < 60; i++) {
+                const petal = {
+                  position: new THREE.Vector3(
+                    (Math.random() - 0.5) * 20,
+                    (Math.random() - 0.5) * 15,
+                    (Math.random() - 0.5) * 20
+                  ),
+                  rotation: new THREE.Euler(
+                    Math.random() * Math.PI * 2,
+                    Math.random() * Math.PI * 2,
+                    Math.random() * Math.PI * 2
+                  ),
+                  scale: 0.5 + Math.random() * 1.0,
+                  color: createPetalColors(),
+                  speed: 0.5 + Math.random() * 1.5,
+                  wobble: Math.random() * 0.02,
+                  quote: sampleQuotes[i % sampleQuotes.length].text,
+                  author: sampleQuotes[i % sampleQuotes.length].author,
+                  nfcId: sampleQuotes[i % sampleQuotes.length].nfcId
+                }
+                petals.push(petal)
+
+                const geometry = createPetalGeometry(i % 12)
+                const material = new THREE.MeshPhongMaterial({
+                  color: petal.color,
+                  transparent: true,
+                  opacity: 0.75,
+                  side: THREE.DoubleSide,
+                  shininess: 3,
+                  specular: new THREE.Color(0x111111),
+                  flatShading: false
+                })
+
+                const mesh = new THREE.Mesh(geometry, material)
+                mesh.position.copy(petal.position)
+                mesh.rotation.copy(petal.rotation)
+                mesh.scale.setScalar(petal.scale)
+                mesh.userData = { petalIndex: i }
+                
+                petalMeshes.push(mesh)
+                scene.add(mesh)
+              }
+            }
+
+            const container = containerRef.current
+            const width = container.clientWidth
+            const height = container.clientHeight
+
+            scene = new THREE.Scene()
+            camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000)
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+            renderer.setSize(width, height)
+            renderer.setClearColor(0x87ceeb, 0.1)
+            container.appendChild(renderer.domElement)
+
+            raycaster = new THREE.Raycaster()
+            mouse = new THREE.Vector2()
+
+            // Lighting setup for a natural, warm feel
+            const ambientLight = new THREE.AmbientLight(0xfff8dc, 0.6)
+            const sunLight = new THREE.DirectionalLight(0xffd700, 0.8)
+            sunLight.position.set(5, 10, 5)
+            const fillLight = new THREE.DirectionalLight(0x87ceeb, 0.3)
+            fillLight.position.set(-5, 2, -5)
+
+            scene.add(ambientLight)
+            scene.add(sunLight)
+            scene.add(fillLight)
+
+            camera.position.set(0, 0, initialZoom)
+            camera.lookAt(0, 0, 0)
+
+            initializePetals()
+
+            let time = 0
+
+            const animate = () => {
+              animationFrameId = requestAnimationFrame(animate)
+              time += 0.01
+
+              petals.forEach((petal, index) => {
+                const mesh = petalMeshes[index]
+                if (!mesh) return
+
+                // Gentle floating motion
+                petal.position.y += Math.sin(time * petal.speed + index) * 0.005
+                petal.position.x += Math.cos(time * petal.speed * 0.7 + index) * 0.003
+                petal.position.z += Math.sin(time * petal.speed * 0.5 + index) * 0.004
+
+                // Gentle rotation
+                petal.rotation.x += petal.wobble * 0.5
+                petal.rotation.y += petal.wobble * 0.3
+                petal.rotation.z += petal.wobble * 0.2
+
+                // Keep petals in bounds
+                if (petal.position.y > 8) petal.position.y = -8
+                if (petal.position.y
