@@ -494,7 +494,7 @@
                   fontFamily: 'Fraunces, Trajan Pro, Optima, Copperplate, serif',
                   textTransform: 'uppercase'
                 }
-              }, 'Digital Florilegium'),
+              }, '~Florilegium~'),
               React.createElement('p', {
                 key: 'subtitle',
                 style: { 
@@ -648,7 +648,29 @@
           ])
         }
 
-        ReactDOM.render(React.createElement(DigitalFlorilegium), document.getElementById('root'))
+ReactDOM.render(React.createElement(DigitalFlorilegium), document.getElementById('root'))
+        
+   </script>
+    
+    <script>
+    window.addEventListener('load', function() {
+      if(location.hash === '#random') {
+        setTimeout(() => {
+          // Simulate clicking a random petal by triggering the Three.js click handler
+          const container = document.querySelector('#root > div > div');
+          if(container) {
+            // Create a fake click event at a random position
+            const rect = container.getBoundingClientRect();
+            const event = new MouseEvent('click', {
+              clientX: rect.left + Math.random() * rect.width,
+              clientY: rect.top + Math.random() * rect.height,
+              bubbles: true
+            });
+            container.dispatchEvent(event);
+          }
+        }, 2000); // Give React time to load
+      }
+    });
     </script>
 </body>
 </html>
