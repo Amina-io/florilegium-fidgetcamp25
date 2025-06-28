@@ -23,12 +23,6 @@
     <script type="text/babel">
         const { useRef, useEffect, useState } = React;
         
-        const metadata = {
-          themes: "Florilegium, Mental Flowers, Wisdom, Beauty, Growth, Collection",
-          visualization: "Floating flower petals carrying quotes and passages of wisdom",
-          promptSuggestion: "1. Add more petal varieties\n2. Include quote display system\n3. Create NFC tag integration\n4. Develop petal interactions\n5. Add seasonal color changes"
-        }
-
         const sampleQuotes = [
           { text: "Creativity is just about making interesting connections between things", author: "Steve Jobs", nfcId: "nfc_001", authorUrl: "https://pin.it/1fs9gVt3f" },
           { text: "To be cringe is to be free", author: "Some internet post", nfcId: "nfc_002", authorUrl: "" },
@@ -73,7 +67,6 @@
               const shape = new THREE.Shape()
               
               if (type === 0) {
-                // Real rose petal - curved and asymmetric
                 shape.moveTo(0, 0)
                 shape.bezierCurveTo(0.4, 0.1, 0.8, 0.3, 1.0, 0.7)
                 shape.bezierCurveTo(1.1, 1.1, 0.9, 1.4, 0.6, 1.6)
@@ -81,7 +74,6 @@
                 shape.bezierCurveTo(-0.1, 1.3, -0.2, 1.0, -0.15, 0.7)
                 shape.bezierCurveTo(-0.1, 0.4, 0.1, 0.1, 0, 0)
               } else if (type === 1) {
-                // Pansy petal - heart-shaped with notch
                 shape.moveTo(0, 0)
                 shape.bezierCurveTo(0.6, 0.2, 0.9, 0.6, 0.8, 1.0)
                 shape.bezierCurveTo(0.7, 1.3, 0.4, 1.4, 0.1, 1.3)
@@ -90,7 +82,6 @@
                 shape.bezierCurveTo(-0.5, 1.4, -0.8, 1.3, -0.9, 1.0)
                 shape.bezierCurveTo(-1.0, 0.6, -0.7, 0.2, 0, 0)
               } else if (type === 2) {
-                // Daisy petal - long and narrow
                 shape.moveTo(0, 0)
                 shape.bezierCurveTo(0.15, 0.1, 0.25, 0.4, 0.3, 0.8)
                 shape.bezierCurveTo(0.32, 1.3, 0.25, 1.6, 0.1, 1.8)
@@ -99,7 +90,6 @@
                 shape.bezierCurveTo(-0.3, 0.8, -0.25, 0.4, -0.15, 0.1)
                 shape.bezierCurveTo(-0.1, 0.05, 0, 0, 0, 0)
               } else if (type === 3) {
-                // Violet petal - rounded and soft
                 shape.moveTo(0, 0)
                 shape.bezierCurveTo(0.5, 0.15, 0.8, 0.5, 0.75, 0.9)
                 shape.bezierCurveTo(0.7, 1.2, 0.5, 1.35, 0.2, 1.4)
@@ -108,7 +98,6 @@
                 shape.bezierCurveTo(-0.75, 0.9, -0.8, 0.5, -0.5, 0.15)
                 shape.bezierCurveTo(-0.2, 0.05, 0, 0, 0, 0)
               } else if (type === 4) {
-                // Carnation petal - ruffled edge
                 shape.moveTo(0, 0)
                 shape.bezierCurveTo(0.3, 0.1, 0.6, 0.3, 0.7, 0.6)
                 shape.lineTo(0.75, 0.8)
@@ -122,67 +111,7 @@
                 shape.lineTo(-0.75, 0.8)
                 shape.bezierCurveTo(-0.7, 0.6, -0.6, 0.3, -0.3, 0.1)
                 shape.bezierCurveTo(-0.1, 0.05, 0, 0, 0, 0)
-              } else if (type === 5) {
-                // Lily petal - pointed with curves
-                shape.moveTo(0, 0)
-                shape.bezierCurveTo(0.2, 0.1, 0.35, 0.3, 0.4, 0.6)
-                shape.bezierCurveTo(0.42, 1.0, 0.35, 1.4, 0.2, 1.7)
-                shape.bezierCurveTo(0.1, 1.8, 0.05, 1.85, 0, 1.9)
-                shape.bezierCurveTo(-0.05, 1.85, -0.1, 1.8, -0.2, 1.7)
-                shape.bezierCurveTo(-0.35, 1.4, -0.42, 1.0, -0.4, 0.6)
-                shape.bezierCurveTo(-0.35, 0.3, -0.2, 0.1, 0, 0)
-              } else if (type === 6) {
-                // Tulip petal - cup shaped
-                shape.moveTo(0, 0)
-                shape.bezierCurveTo(0.4, 0.05, 0.7, 0.2, 0.8, 0.5)
-                shape.bezierCurveTo(0.85, 0.9, 0.8, 1.2, 0.6, 1.4)
-                shape.bezierCurveTo(0.3, 1.5, 0.1, 1.48, 0, 1.45)
-                shape.bezierCurveTo(-0.1, 1.48, -0.3, 1.5, -0.6, 1.4)
-                shape.bezierCurveTo(-0.8, 1.2, -0.85, 0.9, -0.8, 0.5)
-                shape.bezierCurveTo(-0.7, 0.2, -0.4, 0.05, 0, 0)
-              } else if (type === 7) {
-                // Fern frond - delicate and segmented
-                shape.moveTo(0, 0)
-                shape.bezierCurveTo(0.1, 0.1, 0.15, 0.3, 0.2, 0.5)
-                shape.lineTo(0.25, 0.7)
-                shape.bezierCurveTo(0.3, 0.9, 0.25, 1.1, 0.2, 1.3)
-                shape.lineTo(0.15, 1.5)
-                shape.bezierCurveTo(0.1, 1.7, 0.05, 1.8, 0, 1.85)
-                shape.bezierCurveTo(-0.05, 1.8, -0.1, 1.7, -0.15, 1.5)
-                shape.lineTo(-0.2, 1.3)
-                shape.bezierCurveTo(-0.25, 1.1, -0.3, 0.9, -0.25, 0.7)
-                shape.lineTo(-0.2, 0.5)
-                shape.bezierCurveTo(-0.15, 0.3, -0.1, 0.1, 0, 0)
-              } else if (type === 8) {
-                // Cherry blossom - 5 heart petals
-                shape.moveTo(0, 0)
-                shape.bezierCurveTo(0.5, 0.1, 0.8, 0.4, 0.7, 0.8)
-                shape.bezierCurveTo(0.6, 1.1, 0.3, 1.2, 0.1, 1.15)
-                shape.bezierCurveTo(0.05, 1.2, 0, 1.25, -0.05, 1.2)
-                shape.bezierCurveTo(-0.1, 1.15, -0.3, 1.2, -0.6, 1.1)
-                shape.bezierCurveTo(-0.7, 0.8, -0.8, 0.4, -0.5, 0.1)
-                shape.bezierCurveTo(-0.2, 0.05, 0, 0, 0, 0)
-              } else if (type === 9) {
-                // Hibiscus petal - large and ruffled
-                shape.moveTo(0, 0)
-                shape.bezierCurveTo(0.6, 0.2, 1.0, 0.5, 1.1, 0.9)
-                shape.bezierCurveTo(1.15, 1.2, 1.0, 1.4, 0.8, 1.5)
-                shape.bezierCurveTo(0.6, 1.55, 0.4, 1.5, 0.2, 1.45)
-                shape.bezierCurveTo(0.1, 1.48, 0, 1.5, -0.1, 1.48)
-                shape.bezierCurveTo(-0.2, 1.45, -0.4, 1.5, -0.6, 1.55)
-                shape.bezierCurveTo(-0.8, 1.5, -1.0, 1.4, -1.15, 1.2)
-                shape.bezierCurveTo(-1.1, 0.9, -1.0, 0.5, -0.6, 0.2)
-                shape.bezierCurveTo(-0.3, 0.1, 0, 0, 0, 0)
-              } else if (type === 10) {
-                // Iris petal - elegant and curved
-                shape.moveTo(0, 0)
-                shape.bezierCurveTo(0.3, 0.2, 0.5, 0.6, 0.4, 1.0)
-                shape.bezierCurveTo(0.3, 1.4, 0.1, 1.6, 0, 1.7)
-                shape.bezierCurveTo(-0.2, 1.65, -0.4, 1.5, -0.5, 1.2)
-                shape.bezierCurveTo(-0.6, 0.8, -0.4, 0.4, -0.2, 0.2)
-                shape.bezierCurveTo(-0.1, 0.1, 0, 0, 0, 0)
               } else {
-                // Lavender sprig - small and delicate
                 shape.moveTo(0, 0)
                 shape.bezierCurveTo(0.1, 0.05, 0.15, 0.2, 0.18, 0.4)
                 shape.bezierCurveTo(0.2, 0.7, 0.18, 1.0, 0.15, 1.3)
@@ -194,15 +123,12 @@
 
               const geometry = new THREE.ShapeGeometry(shape)
               
-              // Add realistic flower imperfections
               const positions = geometry.attributes.position
               for (let i = 0; i < positions.count; i++) {
                 const x = positions.getX(i)
                 const y = positions.getY(i)
-                // Natural variations like real pressed flowers
                 positions.setX(i, x + (Math.random() - 0.5) * 0.06)
                 positions.setY(i, y + (Math.random() - 0.5) * 0.04)
-                // Subtle aging and press marks
                 const texture = Math.sin(x * 12) * Math.cos(y * 8) * 0.008
                 positions.setZ(i, texture)
               }
@@ -213,22 +139,16 @@
 
             const createPetalColors = () => {
               const colors = [
-                new THREE.Color(0xFFFFFF), // White - FFFFFF
-                new THREE.Color(0xFFA647), // Sandy brown - FFA647
-                new THREE.Color(0xB7C3A0), // Sage - B7C3A0
-                new THREE.Color(0x6E1CD9), // Electric indigo - 6E1CD9
-                new THREE.Color(0xBD6175), // Blush - BD6175
-                new THREE.Color(0xFFFFFF), // White again for more frequency
-                new THREE.Color(0xFFA647), // Sandy brown again for more frequency
-                new THREE.Color(0xB7C3A0), // Sage again for more frequency
-                new THREE.Color(0x6E1CD9), // Electric indigo again for more frequency
-                new THREE.Color(0xBD6175), // Blush again for more frequency
-                // Add a few subtle variations to avoid perfect uniformity
-                new THREE.Color(0xF5F5F5), // Very light gray (close to white)
-                new THREE.Color(0xF2A857), // Slightly warmer sandy brown
-                new THREE.Color(0xC2C8AA), // Slightly lighter sage
-                new THREE.Color(0x7825E0), // Slightly brighter indigo
-                new THREE.Color(0xC4687A)  // Slightly lighter blush
+                new THREE.Color(0xFFFFFF),
+                new THREE.Color(0xFFA647),
+                new THREE.Color(0xB7C3A0),
+                new THREE.Color(0x6E1CD9),
+                new THREE.Color(0xBD6175),
+                new THREE.Color(0xF5F5F5),
+                new THREE.Color(0xF2A857),
+                new THREE.Color(0xC2C8AA),
+                new THREE.Color(0x7825E0),
+                new THREE.Color(0xC4687A)
               ]
               return colors[Math.floor(Math.random() * colors.length)]
             }
@@ -259,7 +179,7 @@
                 }
                 petals.push(petal)
 
-                const geometry = createPetalGeometry(i % 12)
+                const geometry = createPetalGeometry(i % 6)
                 const material = new THREE.MeshPhongMaterial({
                   color: petal.color,
                   transparent: true,
@@ -295,7 +215,6 @@
             raycaster = new THREE.Raycaster()
             mouse = new THREE.Vector2()
 
-            // Lighting setup for a natural, warm feel
             const ambientLight = new THREE.AmbientLight(0xfff8dc, 0.6)
             const sunLight = new THREE.DirectionalLight(0xffd700, 0.8)
             sunLight.position.set(5, 10, 5)
@@ -321,16 +240,415 @@
                 const mesh = petalMeshes[index]
                 if (!mesh) return
 
-                // Gentle floating motion
                 petal.position.y += Math.sin(time * petal.speed + index) * 0.005
                 petal.position.x += Math.cos(time * petal.speed * 0.7 + index) * 0.003
                 petal.position.z += Math.sin(time * petal.speed * 0.5 + index) * 0.004
 
-                // Gentle rotation
                 petal.rotation.x += petal.wobble * 0.5
                 petal.rotation.y += petal.wobble * 0.3
                 petal.rotation.z += petal.wobble * 0.2
 
-                // Keep petals in bounds
                 if (petal.position.y > 8) petal.position.y = -8
-                if (petal.position.y
+                if (petal.position.y < -8) petal.position.y = 8
+                if (petal.position.x > 12) petal.position.x = -12
+                if (petal.position.x < -12) petal.position.x = 12
+                if (petal.position.z > 12) petal.position.z = -12
+                if (petal.position.z < -12) petal.position.z = 12
+
+                mesh.position.copy(petal.position)
+                mesh.rotation.copy(petal.rotation)
+              })
+
+              camera.position.x = Math.sin(time * 0.1) * 2
+              camera.position.y = Math.cos(time * 0.15) * 1
+              camera.lookAt(0, 0, 0)
+
+              renderer.render(scene, camera)
+            }
+
+            const handleClick = (event) => {
+              const rect = container.getBoundingClientRect()
+              mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+              mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+              raycaster.setFromCamera(mouse, camera)
+              const intersects = raycaster.intersectObjects(petalMeshes)
+
+              if (intersects.length > 0) {
+                const clickedMesh = intersects[0].object
+                const petalIndex = clickedMesh.userData.petalIndex
+                const petal = petals[petalIndex]
+                
+                if (petal && petal.quote) {
+                  setShowInstructions(false)
+                  setHasViewedQuote(true)
+                  setSelectedQuote({
+                    text: petal.quote,
+                    author: petal.author || "Unknown",
+                    nfcId: petal.nfcId || ""
+                  })
+                  setShowQuote(true)
+                }
+              }
+            }
+
+            const handleResize = () => {
+              if (!containerRef.current) return
+              const width = containerRef.current.clientWidth
+              const height = containerRef.current.clientHeight
+
+              camera.aspect = width / height
+              camera.updateProjectionMatrix()
+              renderer.setSize(width, height)
+            }
+
+            container.addEventListener('click', handleClick)
+            window.addEventListener('resize', handleResize)
+
+            animate()
+
+            return () => {
+              container.removeEventListener('click', handleClick)
+              window.removeEventListener('resize', handleResize)
+              
+              if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId)
+              }
+              
+              if (renderer) {
+                renderer.dispose()
+                if (container.contains(renderer.domElement)) {
+                  container.removeChild(renderer.domElement)
+                }
+              }
+              
+              petalMeshes.forEach(mesh => {
+                if (mesh.geometry) mesh.geometry.dispose()
+                if (mesh.material) {
+                  if (Array.isArray(mesh.material)) {
+                    mesh.material.forEach((material) => material.dispose())
+                  } else {
+                    mesh.material.dispose()
+                  }
+                }
+              })
+            }
+          }, [])
+
+          useEffect(() => {
+            const initializeNFC = async () => {
+              if ('NDEFReader' in window) {
+                setNfcSupported(true)
+                setNfcStatus('NFC Ready - Tap flowers!')
+                
+                try {
+                  const ndef = new window.NDEFReader()
+                  await ndef.scan()
+                  setNfcStatus('NFC Scanning - Tap a flower!')
+                  
+                  ndef.addEventListener("reading", (event) => {
+                    const { message, serialNumber } = event
+                    console.log('NFC tag detected:', serialNumber)
+                    
+                    if (message && message.records && message.records.length > 0) {
+                      const record = message.records[0]
+                      let nfcId = ''
+                      
+                      if (record.recordType === 'text') {
+                        nfcId = new TextDecoder().decode(record.data)
+                      } else if (record.recordType === 'url') {
+                        nfcId = new TextDecoder().decode(record.data)
+                      } else {
+                        nfcId = serialNumber
+                      }
+                      
+                      console.log('Looking for NFC ID:', nfcId)
+                      
+                      const foundQuote = sampleQuotes.find(q => 
+                        q.nfcId === nfcId || 
+                        q.nfcId === serialNumber ||
+                        serialNumber.includes(q.nfcId.replace('nfc_', ''))
+                      )
+                      
+                      if (foundQuote) {
+                        console.log('Found quote:', foundQuote)
+                        setShowInstructions(false)
+                        setHasViewedQuote(true)
+                        setSelectedQuote(foundQuote)
+                        setShowQuote(true)
+                        setNfcStatus('Quote found! Tap another flower...')
+                      } else {
+                        console.log('No matching quote found, showing default')
+                        setShowInstructions(false)
+                        setHasViewedQuote(true)
+                        setSelectedQuote({
+                          text: "This flower whispers secrets yet to be recorded in our digital garden.",
+                          author: "Unknown Wisdom",
+                          nfcId: nfcId
+                        })
+                        setShowQuote(true)
+                        setNfcStatus('Unknown flower tapped!')
+                      }
+                    }
+                  })
+                  
+                  ndef.addEventListener("readingerror", () => {
+                    console.log('NFC reading error')
+                    setNfcStatus('NFC Error - Try again')
+                  })
+                  
+                } catch (error) {
+                  console.log('NFC initialization error:', error)
+                  setNfcStatus('NFC Permission needed')
+                }
+              } else {
+                setNfcSupported(false)
+                setNfcStatus('NFC not supported in this browser')
+              }
+            }
+
+            initializeNFC()
+          }, [])
+
+          return React.createElement('div', {
+            style: { position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }
+          }, [
+            React.createElement('style', { key: 'styles' }, `
+              @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap');
+              
+              @keyframes fadeIn {
+                from {
+                  opacity: 0;
+                  transform: translate(-50%, -50%) scale(0.9);
+                }
+                to {
+                  opacity: 1;
+                  transform: translate(-50%, -50%) scale(1);
+                }
+              }
+              
+              @keyframes fadeInQuote {
+                from {
+                  opacity: 0;
+                  transform: scale(0.8);
+                }
+                to {
+                  opacity: 1;
+                  transform: scale(1);
+                }
+              }
+            `),
+            
+            React.createElement('div', {
+              key: 'container',
+              ref: containerRef,
+              style: {
+                width: '100%',
+                height: '100%',
+                background: `
+                  linear-gradient(135deg, 
+                    #ffffff 0%,
+                    #f9f6f2 20%,
+                    #f0ebe5 40%,
+                    #e8ddd6 60%,
+                    #e0d0c7 80%,
+                    #d8c3b8 100%
+                  )
+                `,
+                cursor: 'pointer'
+              }
+            }),
+            
+            showInstructions && !hasViewedQuote && React.createElement('div', {
+              key: 'instructions',
+              style: {
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                background: 'rgba(250, 248, 240, 0.95)',
+                padding: '30px 35px',
+                borderRadius: '25px',
+                maxWidth: '550px',
+                fontFamily: 'Times New Roman, serif',
+                fontSize: '18px',
+                lineHeight: '1.6',
+                boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
+                border: '2px solid #d4af37',
+                letterSpacing: '0.5px',
+                zIndex: 100,
+                animation: 'fadeIn 1.5s ease-in-out',
+                cursor: 'pointer'
+              },
+              onClick: () => setShowInstructions(false)
+            }, [
+              React.createElement('h3', {
+                key: 'title',
+                style: { 
+                  margin: '0 0 20px 0', 
+                  color: '#5a4037', 
+                  fontSize: '24px', 
+                  fontWeight: '400',
+                  textAlign: 'center',
+                  letterSpacing: '2px',
+                  fontFamily: 'Fraunces, Trajan Pro, Optima, Copperplate, serif',
+                  textTransform: 'uppercase'
+                }
+              }, 'Digital Florilegium'),
+              React.createElement('p', {
+                key: 'subtitle',
+                style: { 
+                  margin: '0 0 15px 0', 
+                  color: '#6b5b54',
+                  fontSize: '17px',
+                  textAlign: 'center'
+                }
+              }, 'Choose a petal to reveal a passage of wisdom'),
+              nfcSupported && React.createElement('p', {
+                key: 'nfc-note',
+                style: { 
+                  margin: '10px 0 15px 0', 
+                  color: '#8b7355',
+                  fontSize: '15px',
+                  fontWeight: '500',
+                  textAlign: 'center'
+                }
+              }, 'Or tap your phone on bioresin flowers with NFC tags'),
+              React.createElement('p', {
+                key: 'description',
+                style: { 
+                  margin: '0', 
+                  color: '#9a8a7f', 
+                  fontSize: '15px', 
+                  fontStyle: 'italic',
+                  textAlign: 'center',
+                  borderTop: '1px solid rgba(139, 69, 19, 0.15)',
+                  paddingTop: '15px',
+                  marginTop: '18px'
+                }
+              }, 'In medieval times, monks created "florilegium" — collections of mental flowers carrying beautiful passages of wisdom.')
+            ]),
+
+            showQuote && selectedQuote && React.createElement('div', {
+              key: 'quote-overlay',
+              style: {
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                background: 'rgba(0, 0, 0, 0.7)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1000
+              },
+              onClick: () => setShowQuote(false)
+            }, React.createElement('div', {
+              style: {
+                background: 'linear-gradient(145deg, #f7f4f0, #ede8e2)',
+                padding: '45px',
+                borderRadius: '6px',
+                maxWidth: '600px',
+                maxHeight: '400px',
+                textAlign: 'center',
+                fontFamily: 'Fraunces, Times New Roman, serif',
+                boxShadow: '0 15px 50px rgba(101, 67, 33, 0.2), 0 5px 15px rgba(139, 69, 19, 0.1)',
+                border: '1px solid rgba(139, 69, 19, 0.25)',
+                position: 'relative',
+                animation: 'fadeInQuote 0.8s ease-out'
+              },
+              onClick: (e) => e.stopPropagation()
+            }, [
+              React.createElement('blockquote', {
+                key: 'quote-text',
+                style: {
+                  fontSize: '19px',
+                  lineHeight: '1.7',
+                  color: '#5a4037',
+                  margin: '25px 0',
+                  fontStyle: 'italic',
+                  position: 'relative',
+                  fontWeight: '400'
+                }
+              }, `"${selectedQuote.text}"`),
+              
+              selectedQuote.authorUrl ? 
+                React.createElement('a', {
+                  key: 'author-link',
+                  href: selectedQuote.authorUrl,
+                  target: '_blank',
+                  rel: 'noopener noreferrer',
+                  style: {
+                    display: 'block',
+                    fontSize: '15px',
+                    color: '#8b7355',
+                    marginTop: '20px',
+                    fontWeight: '500',
+                    letterSpacing: '0.3px',
+                    textDecoration: 'none'
+                  }
+                }, `— ${selectedQuote.author}`) :
+                React.createElement('cite', {
+                  key: 'author-cite',
+                  style: {
+                    display: 'block',
+                    fontSize: '15px',
+                    color: '#8b7355',
+                    marginTop: '20px',
+                    fontWeight: '500',
+                    letterSpacing: '0.3px'
+                  }
+                }, `— ${selectedQuote.author}`),
+              
+              selectedQuote.nfcId && React.createElement('div', {
+                key: 'nfc-id',
+                style: {
+                  marginTop: '20px',
+                  fontSize: '12px',
+                  color: '#708090',
+                  fontFamily: 'monospace'
+                }
+              }, `NFC: ${selectedQuote.nfcId}`),
+              
+              React.createElement('button', {
+                key: 'continue-btn',
+                onClick: () => setShowQuote(false),
+                style: {
+                  marginTop: '30px',
+                  padding: '12px 24px',
+                  background: 'linear-gradient(145deg, #8b7355, #6b5b4f)',
+                  color: '#f9f6f2',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontFamily: 'Times New Roman, serif',
+                  fontWeight: '500',
+                  letterSpacing: '0.5px'
+                }
+              }, 'Continue Gathering')
+            ])),
+
+            React.createElement('div', {
+              key: 'nfc-status',
+              style: {
+                position: 'absolute',
+                bottom: '20px',
+                right: '20px',
+                background: nfcSupported ? 'rgba(212, 175, 55, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                padding: '10px 15px',
+                borderRadius: '20px',
+                fontSize: '12px',
+                color: nfcSupported ? '#2c1810' : '#666',
+                fontFamily: 'monospace',
+                border: nfcSupported ? '1px solid #d4af37' : '1px solid #ccc'
+              }
+            }, `${nfcSupported ? '📱' : '🚫'} ${nfcStatus}`)
+          ])
+        }
+
+        ReactDOM.render(React.createElement(DigitalFlorilegium), document.getElementById('root'))
+    </script>
+</body>
+</html>
