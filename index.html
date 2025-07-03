@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,8 +49,6 @@
           const [showQuote, setShowQuote] = useState(false)
           const [showInstructions, setShowInstructions] = useState(true)
           const [hasViewedQuote, setHasViewedQuote] = useState(false)
-          const [nfcSupported, setNfcSupported] = useState(false)
-          const [nfcStatus, setNfcStatus] = useState('Checking NFC...')
 
           useEffect(() => {
             if (!containerRef.current) return
@@ -284,8 +283,7 @@
                   setHasViewedQuote(true)
                   setSelectedQuote({
                     text: petal.quote,
-                    author: petal.author || "Unknown",
-                    nfcId: petal.nfcId || ""
+                    author: petal.author || "Unknown"
                   })
                   setShowQuote(true)
                 }
@@ -333,81 +331,6 @@
                 }
               })
             }
-          }, [])
-
-          useEffect(() => {
-            const initializeNFC = async () => {
-              if ('NDEFReader' in window) {
-                setNfcSupported(true)
-                setNfcStatus('NFC Ready - Tap flowers!')
-                
-                try {
-                  const ndef = new window.NDEFReader()
-                  await ndef.scan()
-                  setNfcStatus('NFC Scanning - Tap a flower!')
-                  
-                  ndef.addEventListener("reading", (event) => {
-                    const { message, serialNumber } = event
-                    console.log('NFC tag detected:', serialNumber)
-                    
-                    if (message && message.records && message.records.length > 0) {
-                      const record = message.records[0]
-                      let nfcId = ''
-                      
-                      if (record.recordType === 'text') {
-                        nfcId = new TextDecoder().decode(record.data)
-                      } else if (record.recordType === 'url') {
-                        nfcId = new TextDecoder().decode(record.data)
-                      } else {
-                        nfcId = serialNumber
-                      }
-                      
-                      console.log('Looking for NFC ID:', nfcId)
-                      
-                      const foundQuote = sampleQuotes.find(q => 
-                        q.nfcId === nfcId || 
-                        q.nfcId === serialNumber ||
-                        serialNumber.includes(q.nfcId.replace('nfc_', ''))
-                      )
-                      
-                      if (foundQuote) {
-                        console.log('Found quote:', foundQuote)
-                        setShowInstructions(false)
-                        setHasViewedQuote(true)
-                        setSelectedQuote(foundQuote)
-                        setShowQuote(true)
-                        setNfcStatus('Quote found! Tap another flower...')
-                      } else {
-                        console.log('No matching quote found, showing default')
-                        setShowInstructions(false)
-                        setHasViewedQuote(true)
-                        setSelectedQuote({
-                          text: "This flower whispers secrets yet to be recorded in our digital garden.",
-                          author: "Unknown Wisdom",
-                          nfcId: nfcId
-                        })
-                        setShowQuote(true)
-                        setNfcStatus('Unknown flower tapped!')
-                      }
-                    }
-                  })
-                  
-                  ndef.addEventListener("readingerror", () => {
-                    console.log('NFC reading error')
-                    setNfcStatus('NFC Error - Try again')
-                  })
-                  
-                } catch (error) {
-                  console.log('NFC initialization error:', error)
-                  setNfcStatus('NFC Permission needed')
-                }
-              } else {
-                setNfcSupported(false)
-                setNfcStatus('NFC not supported in this browser')
-              }
-            }
-
-            initializeNFC()
           }, [])
 
           return React.createElement('div', {
@@ -504,16 +427,6 @@
                   textAlign: 'center'
                 }
               }, 'Choose a petal to reveal a passage of wisdom'),
-              nfcSupported && React.createElement('p', {
-                key: 'nfc-note',
-                style: { 
-                  margin: '10px 0 15px 0', 
-                  color: '#8b7355',
-                  fontSize: '15px',
-                  fontWeight: '500',
-                  textAlign: 'center'
-                }
-              }, 'Or tap your phone on bioresin flowers with NFC tags'),
               React.createElement('p', {
                 key: 'description',
                 style: { 
@@ -601,16 +514,6 @@
                   }
                 }, `— ${selectedQuote.author}`),
               
-              selectedQuote.nfcId && React.createElement('div', {
-                key: 'nfc-id',
-                style: {
-                  marginTop: '20px',
-                  fontSize: '12px',
-                  color: '#708090',
-                  fontFamily: 'monospace'
-                }
-              }, `NFC: ${selectedQuote.nfcId}`),
-              
               React.createElement('button', {
                 key: 'continue-btn',
                 onClick: () => setShowQuote(false),
@@ -628,23 +531,7 @@
                   letterSpacing: '0.5px'
                 }
               }, 'Continue Gathering')
-            ])),
-
-            React.createElement('div', {
-              key: 'nfc-status',
-              style: {
-                position: 'absolute',
-                bottom: '20px',
-                right: '20px',
-                background: nfcSupported ? 'rgba(212, 175, 55, 0.9)' : 'rgba(255, 255, 255, 0.9)',
-                padding: '10px 15px',
-                borderRadius: '20px',
-                fontSize: '12px',
-                color: nfcSupported ? '#2c1810' : '#666',
-                fontFamily: 'monospace',
-                border: nfcSupported ? '1px solid #d4af37' : '1px solid #ccc'
-              }
-            }, `${nfcSupported ? '📱' : '🚫'} ${nfcStatus}`)
+            ]))
           ])
         }
 
